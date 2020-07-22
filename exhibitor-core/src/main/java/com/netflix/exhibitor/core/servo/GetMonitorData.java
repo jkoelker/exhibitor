@@ -19,6 +19,7 @@ package com.netflix.exhibitor.core.servo;
 import com.google.common.collect.Maps;
 import com.netflix.exhibitor.core.Exhibitor;
 import com.netflix.exhibitor.core.activity.Activity;
+import com.netflix.exhibitor.core.activity.ActivityLog;
 import com.netflix.exhibitor.core.state.FourLetterWord;
 import com.netflix.servo.monitor.BasicCounter;
 import java.util.List;
@@ -66,6 +67,7 @@ public class GetMonitorData implements Activity
                 }
                 catch ( NumberFormatException ignore )
                 {
+                    exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Error parsing number", ignore);
                     // ignore
                 }
             }

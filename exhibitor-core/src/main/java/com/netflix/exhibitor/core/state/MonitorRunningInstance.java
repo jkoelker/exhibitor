@@ -195,6 +195,7 @@ public class MonitorRunningInstance implements Closeable
     {
         if ( exhibitor.getConfigManager().isRolling() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "ConfigManager is Rolling.");
             return;
         }
 
@@ -202,6 +203,7 @@ public class MonitorRunningInstance implements Closeable
         boolean     serverListIsDefined = (state.getServerList().getSpecs().size() > 0);
         if ( serverListIsDefined && (state.getUs() == null) )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "This instance is not in the server list, skipping restart.");
             return; // there is a server list and we're not in it. Therefore, there's no point in restarting, it will always fail
         }
 
@@ -218,6 +220,8 @@ public class MonitorRunningInstance implements Closeable
             {
                 exhibitor.getLog().add(ActivityLog.Type.INFO, "ZooKeeper down/not-serving waiting " + elapsedMs + " of " + downInstanceRestartMs + " ms before restarting");
             }
+        } else {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "State not in (DOWN, NOT_SERVING), no neet to check for restart.");
         }
     }
 

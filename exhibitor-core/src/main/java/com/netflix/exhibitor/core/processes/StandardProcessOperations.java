@@ -55,6 +55,7 @@ public class StandardProcessOperations implements ProcessOperations
         Details             details = new Details(exhibitor);
         if ( !details.isValid() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Details is not valid");
             return;
         }
 

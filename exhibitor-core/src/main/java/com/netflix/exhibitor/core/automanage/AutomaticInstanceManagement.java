@@ -50,16 +50,19 @@ public class AutomaticInstanceManagement implements Activity
     {
         if ( exhibitor.getConfigManager().getConfig().getInt(IntConfigs.AUTO_MANAGE_INSTANCES) == 0 )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "AutoManage is turned off");
             return true;    // auto manage is turned off
         }
 
         if ( exhibitor.getConfigManager().isRolling() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "ConfigManager is Rolling.");
             return true;
         }
 
         if ( exhibitor.getMonitorRunningInstance().getCurrentInstanceState() == InstanceStateTypes.LATENT )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "This instance hasn't warmed up yet.");
             return true;    // this instance hasn't warmed up yet
         }
 
@@ -71,6 +74,7 @@ public class AutomaticInstanceManagement implements Activity
 
         if ( !ensembleBuilder.newEnsembleNeeded() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "New Ensemble is not needed.");
             return true;
         }
 

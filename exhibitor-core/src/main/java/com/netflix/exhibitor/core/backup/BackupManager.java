@@ -219,12 +219,14 @@ public class BackupManager implements Closeable
     {
         if ( !exhibitor.getControlPanelValues().isSet(ControlPanelTypes.BACKUPS) )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Backups disabled in Control Panel.");
             return;
         }
 
         ZooKeeperLogFiles zooKeeperLogFiles = new ZooKeeperLogFiles(exhibitor);
         if ( !zooKeeperLogFiles.isValid() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Zookeper Log Files are not valid.");
             return;
         }
 
@@ -233,6 +235,7 @@ public class BackupManager implements Closeable
         BackupProvider      provider = backupProvider.get();
         if ( !provider.isValidConfig(exhibitor, config) )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Backup Provider config is not valid.");
             return;
         }
 

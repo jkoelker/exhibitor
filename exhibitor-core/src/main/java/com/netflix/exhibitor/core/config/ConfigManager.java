@@ -144,11 +144,14 @@ public class ConfigManager implements Closeable
         ConfigCollection localConfig = getCollection();
         if ( localConfig.isRolling() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Canceling rolling config");
             clearAttempts();
 
             InstanceConfig          newConfig = (mode == CancelMode.ROLLBACK) ? localConfig.getRootConfig() : localConfig.getRollingConfig();
             ConfigCollection        newCollection = new ConfigCollectionImpl(newConfig, null);
             internalUpdateConfig(newCollection);
+        } else {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Config is not Rolling, ignoring cancel request.");
         }
     }
 
@@ -193,6 +196,7 @@ public class ConfigManager implements Closeable
         ConfigCollection        localConfig = getCollection();
         if ( localConfig.isRolling() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Config is already Rolling, ignoring start roll request.");
             return false;
         }
 
@@ -308,6 +312,7 @@ public class ConfigManager implements Closeable
     {
         if ( (rollingHostNamesIndex + 1) >= rollingHostNames.size() )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Done rolling - switch back to single config.");
             // we're done - switch back to single config
             return new ConfigCollectionImpl(config.getRollingConfig(), null);
         }
@@ -316,6 +321,7 @@ public class ConfigManager implements Closeable
         RollingReleaseState             state = new RollingReleaseState(new InstanceState(), newCollection);
         if ( state.getCurrentRollingHostname().equals(exhibitor.getThisJVMHostname()) )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "This host is rolling.");
             return newCollection;
         }
 
@@ -324,6 +330,7 @@ public class ConfigManager implements Closeable
         RemoteInstanceRequest.Result        result;
         if ( (activeAttempt == null) || !activeAttempt.getHostname().equals(state.getCurrentRollingHostname()) || (activeAttempt.getAttemptCount() < maxAttempts) )
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Another host is rolling.");
             RemoteInstanceRequest           remoteInstanceRequest = new RemoteInstanceRequest(exhibitor, state.getCurrentRollingHostname());
             result = callRemoteInstanceRequest(remoteInstanceRequest);
 
@@ -350,6 +357,7 @@ public class ConfigManager implements Closeable
         }
         else
         {
+            exhibitor.getLog().add(ActivityLog.Type.DEBUG, "Setting newCollection to null.");
             newCollection = null;
         }
         return newCollection;
