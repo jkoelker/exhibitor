@@ -39,6 +39,7 @@ import com.sun.jersey.api.client.filter.HTTPDigestAuthFilter;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import org.apache.curator.utils.CloseableUtils;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
+import org.eclipse.jetty.util.ProcessorUtils;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
@@ -164,9 +165,11 @@ public class ExhibitorMain implements Closeable
             connector.setPort(exhibitor.getRestPort());
         }
 
-        connector.setAcceptors(8);
-        connector.setMaxIdleTime(5000);
-        connector.setAcceptQueueSize(32);
+        int cores = ProcessorUtils.availableProcessors();
+        int acceptors = Math.max(8, Math.min(8, cores / 8));
+
+        connector.setAcceptors(acceptors);
+        connector.setMaxIdleTime(30000);
         server.addConnector(connector);
 
         // The server's threadPool implementation defaults to the
@@ -195,9 +198,9 @@ public class ExhibitorMain implements Closeable
         LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(maxQueueSize);
         // corePoolSize needs to be much higher than the number of Acceptors
         // See https://jira.mesosphere.com/browse/DCOS-14045
-        final int corePoolSize = 20;
-        final int maxThreads = 100;
-        final int maxIdleTime = 5;
+        final int corePoolSize = acceptors * 4;
+        final int maxThreads = 200;
+        final int maxIdleTime = 60;
         ExecutorThreadPool threadPool = new ExecutorThreadPool(corePoolSize, maxThreads, maxIdleTime, TimeUnit.SECONDS, queue);
         server.setThreadPool(threadPool);
 
